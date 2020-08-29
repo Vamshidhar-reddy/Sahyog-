@@ -5,24 +5,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:share/share.dart';
-
-class Job {
-  final int id;
-  final String position;
-  final String company;
-  final String description;
-
-  Job({this.id, this.position, this.company, this.description});
-
-  factory Job.fromJson(Map<String, dynamic> json) {
-    return Job(
-      id: json['id'],
-      position: json['position'],
-      company: json['company'],
-      description: json['description'],
-    );
-  }
-}
+import 'global.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -58,6 +41,11 @@ class _HomeState extends State<Home> {
     }
   }
 
+  void initState() {
+    super.initState();
+    _fetchJobs();
+  }
+
   ListView _jobsListView(data) {
     return ListView.builder(
         padding: EdgeInsets.all(10.0),
@@ -87,15 +75,22 @@ class _HomeState extends State<Home> {
                     MaterialPageRoute(builder: (context) => Location())),
               ),
               secondaryActions: <Widget>[
-                IconSlideAction(
-                  caption: 'Share',
-                  color: Colors.blueAccent,
-                  icon: Icons.share,
-                  // onTap: share(context, job),
+                Button(),
+                // IconSlideAction(
+                //   caption: 'Share',
+                //   color: Colors.blueAccent,
+                //   icon: Icons.share,
+                //   onTap: () {
+                //     final RenderBox box = context.findRenderObject();
 
-                  // onTap: () => {}
-                  // onTap: () => showSnackBar('Archive'),
-                ),
+                //     Share.share(
+                //         "${data[index].position} - ${data[index].company}",
+                //         // subject: data[index].description,
+                //         sharePositionOrigin:
+                //             box.localToGlobal(Offset.zero) & box.size);
+                //   },
+                // ),
+
                 IconSlideAction(
                   caption: 'Delete',
                   color: Colors.red,
@@ -114,10 +109,24 @@ class _HomeState extends State<Home> {
   }
 }
 
-share(BuildContext context, Job job) {
-  final RenderBox box = context.findRenderObject();
+class Button extends StatelessWidget {
+  const Button({
+    Key key,
+  }) : super(key: key);
 
-  Share.share("${job.position} - ${job.company}",
-      subject: job.description,
-      sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size);
+  @override
+  Widget build(BuildContext context) {
+    return IconSlideAction(
+      caption: 'Share',
+      color: Colors.blueAccent,
+      icon: Icons.share,
+      onTap: () {
+        final RenderBox box = context.findRenderObject();
+
+        Share.share('''${data[index].position} , ${data[index].company}''',
+            // subject: data[index].description,
+            sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size);
+      },
+    );
+  }
 }
