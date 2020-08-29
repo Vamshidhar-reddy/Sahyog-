@@ -50,6 +50,7 @@ class _LocationState extends State<Location> {
     Completer<GoogleMapController> _controller = Completer();
     return Scaffold(
         appBar: AppBar(
+          backgroundColor: Colors.deepOrange,
           leading: new IconButton(
             icon: new Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () => Navigator.of(context).pop(),

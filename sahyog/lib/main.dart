@@ -15,7 +15,12 @@ class App extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         appBar: AppBar(
-          title: Center(child: Text('Sahyog')),
+          backgroundColor: Colors.green,
+          title: Center(
+              child: Text(
+            'SAHYOG Developer',
+            style: TextStyle(backgroundColor: Colors.green),
+          )),
         ),
         body: Center(
           child: Home(),

@@ -7,35 +7,53 @@ import 'package:http/http.dart' as http;
 import 'package:share/share.dart';
 import 'global.dart';
 
+List<Job> data;
+String position;
+String company;
+
 class Home extends StatefulWidget {
   @override
   _HomeState createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> {
+  bool isloading;
+  List<Job> data = List<Job>();
+
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<Job>>(
-      future: _fetchJobs(),
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          List<Job> data = snapshot.data;
-          return _jobsListView(data);
-        } else if (snapshot.hasError) {
-          return Text("${snapshot.error}");
-        }
-        return CircularProgressIndicator();
-      },
-    );
+    if (isloading == true) {
+      return CircularProgressIndicator();
+    } else {
+      return _jobsListView(data);
+    }
+    // isloading != true ? _jobsListView(data) : CircularProgressIndicator();
+    // return FutureBuilder<List<Job>>(
+    //   future: _fetchJobs(),
+    //   builder: (context, snapshot) {
+    //     if (snapshot.hasData) {
+    //       return _jobsListView(data);
+    //     } else if (snapshot.hasError) {
+    //       return Text("${snapshot.error}");
+    //     }
+    //     return CircularProgressIndicator();
+    //   },
+    // );
   }
 
   Future<List<Job>> _fetchJobs() async {
+    setState(() {
+      isloading = true;
+    });
     final jobsAPIUrl = 'https://mock-json-service.glitch.me/';
     final response = await http.get(jobsAPIUrl);
 
     if (response.statusCode == 200) {
       List jsonResponse = json.decode(response.body);
-      return jsonResponse.map((job) => new Job.fromJson(job)).toList();
+      data = jsonResponse.map((job) => new Job.fromJson(job)).toList();
+      setState(() {
+        isloading = false;
+      });
     } else {
       throw Exception('Failed to load jobs from API');
     }
@@ -54,15 +72,6 @@ class _HomeState extends State<Home> {
           return Card(
             elevation: 3.0,
             child: Slidable(
-              // dismissal: SlidableDismissal(
-              //   child: SlidableDrawerDismissal(),
-              //   onDismissed: (actionType) {
-              //     setState(() {
-              //       data.removeAt(index);
-              //     });
-              //   },
-              // ),
-              // key: Key(data[index]),
               actionPane: SlidableDrawerActionPane(),
               child: ListTile(
                 title: Text(data[index].position,
@@ -75,7 +84,7 @@ class _HomeState extends State<Home> {
                     MaterialPageRoute(builder: (context) => Location())),
               ),
               secondaryActions: <Widget>[
-                Button(),
+                Button(xyz: data[index]),
                 // IconSlideAction(
                 //   caption: 'Share',
                 //   color: Colors.blueAccent,
@@ -100,7 +109,6 @@ class _HomeState extends State<Home> {
                       data.removeAt(index);
                     });
                   },
-                  // onTap: () => _showSnackBar('Share'),
                 ),
               ],
             ),
@@ -110,7 +118,9 @@ class _HomeState extends State<Home> {
 }
 
 class Button extends StatelessWidget {
-  const Button({
+  Job xyz;
+  Button({
+    this.xyz,
     Key key,
   }) : super(key: key);
 
@@ -122,9 +132,8 @@ class Button extends StatelessWidget {
       icon: Icons.share,
       onTap: () {
         final RenderBox box = context.findRenderObject();
-
-        Share.share('''${data[index].position} , ${data[index].company}''',
-            // subject: data[index].description,
+        Share.share('''${xyz.position} , ${xyz.company}''',
+            subject: xyz.description,
             sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size);
       },
     );
